@@ -16,20 +16,16 @@ export default class Registration extends React.Component {
 			email: '',
 			password: '',
 			repassword: '',
+			nickname: '',
 		}
 	}
 
 	handleChange = e => this.setState({[e.target.name]: e.target.value});
 
-	handleSubmit = async (e) => {
+	handleSubmit = (e) => {
 		e.preventDefault();
-		console.log(`ready to submit ${this.state.email} and ${this.state.password}`);
-		const {email, password} = this.state;
-		const response = await axios.post('http://localhost:6357/auth/reg', {email, password});
-		console.log('response = ', response);
-		
-		
-		
+		const {email, password, nickname} = this.state;
+		axios.post('http://localhost:6357/auth/reg', {email, password, nickname});
 		return this.props.history.push('/');
 	}
 
@@ -44,8 +40,18 @@ export default class Registration extends React.Component {
 					<Grid item>
 						<TextField
 							id="standard-textarea"
+							label="Nickname"
+							name="nickname"
+							value={this.state.nickname}
+							onChange={this.handleChange}
+							style={styles.textField}
+							margin="normal"
+						/>
+					</Grid>
+					<Grid item>
+						<TextField
+							id="standard-textarea"
 							label="Email"
-							placeholder="email"
 							name="email"
 							value={this.state.email}
 							onChange={this.handleChange}
@@ -58,7 +64,6 @@ export default class Registration extends React.Component {
 							error = {this.state.password !== this.state.repassword && this.state.repassword!==''}
 							id="standard-password-input"
 							label="Password"
-							placeholder="password"
 							style={styles.textField}
 							type="password"
 							name="password"
@@ -72,7 +77,6 @@ export default class Registration extends React.Component {
 						<TextField
 							error = {this.state.password !== this.state.repassword}
 							label="Repeat-password"
-							placeholder="password"
 							style={styles.textField}
 							name="repassword"
 							value={this.state.repassword}

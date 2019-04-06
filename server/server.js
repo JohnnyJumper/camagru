@@ -8,6 +8,8 @@ const keys = require('./config/keys');
 const app = express();
 const PORT = process.env.PORT || 6357
 const auth = require('./auth');
+const api = require('./api');
+const {checkToken} = require('./middleware/middleware');
 
 
 mongoose.connect(
@@ -26,6 +28,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 app.use('/auth', auth);
+app.use('/api', checkToken, api);
 
 
 app.listen(PORT, () => console.log(`listening on ${PORT}`));

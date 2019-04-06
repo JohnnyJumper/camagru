@@ -27,7 +27,7 @@ class App extends Component {
 		return (
 			<div className="app">
 				<Router>
-					<Header auth={auth}/>
+					<Header auth={auth} authentificate={this.authentificate}/>
 						<Routes auth={auth} authentificate={this.authentificate}/>
 					<Footer />
 				</Router>

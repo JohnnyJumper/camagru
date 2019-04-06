@@ -30,10 +30,13 @@ export default class Login extends Component {
 		const {login, password} = this.state;
 		const response = await axios.post("http://localhost:6357/auth/login", {email:login, password});
 		const {data: {accessToken, success}} = await response;
-		if (success) {
+		if (success && accessToken) {
 			localStorage.setItem('camagru-access', accessToken);
+			axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
 			this.props.authentificate(true);
 			this.props.history.push('/main');
+		} else {
+		localStorage.deleteItem()
 		}
 	}
 

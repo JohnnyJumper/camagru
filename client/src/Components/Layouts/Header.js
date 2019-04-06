@@ -1,7 +1,9 @@
 import React from 'react'
 import {AppBar, Toolbar, IconButton, Typography, Button} from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
+import ExitToApp from '@material-ui/icons/ExitToApp';
 import {Link} from 'react-router-dom';
+import axios from 'axios';
 
 const styles = {
 	Menu: {
@@ -20,29 +22,75 @@ const styles = {
 	}
 }
 
-export default function Header({auth}) {
-	return (
-		<div style={styles.Container}>
-			<AppBar position="static">
-				<Toolbar>
-					<IconButton  color="inherit" aria-label="Menu" style={styles.Menu}>
-						<MenuIcon />
-					</IconButton>
-					<Typography variant="h6" color="inherit"  style={styles.Name}>
-						Camagaru
-					</Typography>
-						{auth ? null :
-							<React.Fragment>
-									<Button color="inherit" component={Link} to="/">		
-											Login
-									</Button>
-									<Button color="inherit" component={Link} to="/registration">	
-											Registration
-									</Button>
-							</React.Fragment>
-						}
-				</Toolbar>
-			</AppBar>
-		</div>
-	)
+
+const LogOut = (authentificate) => {
+	localStorage.removeItem('camagru-access');
+	authentificate(false);
+}
+
+export default class Header extends React.Component {
+
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			nickname: '',
+			auth: false
+		}
+	}
+
+	static getDerivedStateFromProps(props, state) {
+		if (props.auth !== state.auth) {
+			return {auth: props.auth}
+		}
+		return null;
+	}
+
+	async componentDidUpdate(prevProps, prevState) {
+		if (prevProps.auth !== this.props.auth) {
+			const user = await axios.get("http://localhost:6357/api/user");
+			const {data: {success, data}} = user;
+			if (success) {
+				const {nickname} = data;
+				this.setState({auth: this.props.auth, nickname});
+			}
+		}
+	}
+
+	render() {	
+		const {auth, authentificate} = this.props;
+		return (
+			<div style={styles.Container}>
+				<AppBar position="static">
+					<Toolbar>
+						<IconButton  color="inherit" aria-label="Menu" style={styles.Menu}>
+							<MenuIcon />
+						</IconButton>
+						<Typography variant="h6" color="inherit"  style={styles.Name}>
+							Camagaru
+						</Typography>
+							{auth ?
+								<React.Fragment>
+									<Typography variant="h6" color="inherit">
+										{this.state.nickname}
+									</Typography>
+									<IconButton color="inherit" component={Link} to="/" onClick={() => LogOut(authentificate)}>
+										<ExitToApp />
+									</IconButton>
+								</React.Fragment>
+							:
+								<React.Fragment>
+										<Button color="inherit" component={Link} to="/">		
+												Login
+										</Button>
+										<Button color="inherit" component={Link} to="/registration">	
+												Registration
+										</Button>
+								</React.Fragment>
+							}
+					</Toolbar>
+				</AppBar>
+			</div>
+		)
+	}
 }

@@ -13,12 +13,6 @@ router.get('/checkAuth', checkToken, (req, res) => {
 	return res.json({success: true});
 })
 
-router.get('/', checkToken,  (req, res) => {
-	users.find({}, (err, docs) => {
-		return res.json({err, docs});
-	});
-})
-
 router.post('/login', async (req, res) => {
 	const {email, password} = req.body;
 	const user = await users.findOne({email});
@@ -43,12 +37,12 @@ router.post('/login', async (req, res) => {
 
 
 router.post('/reg', (req, res) => {
-	const {email, password} = req.body;
+	const {email, password, nickname} = req.body;
 
-	if (!email || !password) return res.json({err: 'wrong input', data: req.body});
+	if (!email || !password || !nickname) return res.json({err: 'wrong input', data: req.body});
 	bcrypt.hash(password, saltRounds,  (err, hash)  => {
 		if (err) return res.json({success: false, err, data: req.body})
-		const newUser = new users({email, password: hash});
+		const newUser = new users({email, password: hash, nickname});
 		newUser.save().then((user) => res.json({success:true}));
 	})
 })

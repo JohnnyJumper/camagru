@@ -8,7 +8,7 @@ const checkToken = (req, res, next) => {
 		jwt.verify(token, keys.JWTsecret, (err, decoded) => {
 			if (err) return res.json({success: false, message: 'token is not valid', err})
 			else {
-				req.decoded = decoded;
+				res.locals.decoded = decoded;
 				next();
 			}
 		});

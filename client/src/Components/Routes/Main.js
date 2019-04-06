@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import axios from 'axios';
 import checkStatus from '../../helpers';
 
-
 export default class Main extends Component {
 
 	async componentDidMount() {
@@ -10,7 +9,6 @@ export default class Main extends Component {
 		const {data: {success}} = await response;
 		const options = {success, history: this.props.history};
 		checkStatus(options);		
-
 	}
 
 	render() {
