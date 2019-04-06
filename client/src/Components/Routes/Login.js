@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import {Typography, Grid, TextField, Button} from '@material-ui/core';
+import axios from 'axios';
+
 
 const styles= {
 	Grid: {
@@ -11,6 +13,25 @@ const styles= {
 }
 
 export default class Login extends Component {
+
+	constructor() {
+		super();
+
+		this.state = {
+			login: '',
+			password: ''
+		}
+	}
+
+	handleChange = (e) => this.setState({[e.target.name]: e.target.value});
+	
+	handleLogin = async (e) => {
+		e.preventDefault();
+		const {login, password} = this.state;
+		const response = await axios.post("http://localhost:6357/auth/login", {email:login, password});
+		console.log('response = ', response);
+	}
+
 	render() {
 		return (
 		<Grid container alignItems="center" direction="column" style={styles.Grid}>
@@ -26,6 +47,9 @@ export default class Login extends Component {
 					placeholder="email"
 					style={styles.textField}
 					margin="normal"
+					value={this.state.login}
+					name="login"
+					onChange={this.handleChange}
 				/>
 			</Grid>
 			<Grid item>
@@ -37,10 +61,13 @@ export default class Login extends Component {
 					type="password"
 		  			autoComplete="current-password"
 					margin="normal"
+					name="password"
+					value={this.state.password}
+					onChange={this.handleChange}
 				/>
 			</Grid>
 			<Grid item>
-				<Button color="primary">
+				<Button color="primary" onClick={this.handleLogin}>
 					Login
 				</Button>
 			</Grid>

@@ -1,5 +1,6 @@
 import React from 'react'
 import {Grid, Typography, Button, TextField} from '@material-ui/core';
+import axios from 'axios';
 
 const styles= {
 	Grid: {
@@ -14,12 +15,23 @@ export default class Registration extends React.Component {
 		this.state = {
 			email: '',
 			password: '',
-			repassword: ''
+			repassword: '',
 		}
 	}
 
 	handleChange = e => this.setState({[e.target.name]: e.target.value});
 
+	handleSubmit = async (e) => {
+		e.preventDefault();
+		console.log(`ready to submit ${this.state.email} and ${this.state.password}`);
+		const {email, password} = this.state;
+		const response = await axios.post('http://localhost:6357/auth/reg', {email, password});
+		console.log('response = ', response);
+		
+		
+		
+		return this.props.history.push('/');
+	}
 
 	render() {
 		return (
@@ -59,7 +71,6 @@ export default class Registration extends React.Component {
 					<Grid item>
 						<TextField
 							error = {this.state.password !== this.state.repassword}
-							id="standard-password-input"
 							label="Repeat-password"
 							placeholder="password"
 							style={styles.textField}
@@ -72,8 +83,8 @@ export default class Registration extends React.Component {
 						/>
 					</Grid>
 					<Grid item>
-						<Button color="primary">
-							Login
+						<Button color="primary" onClick={this.handleSubmit}>
+							Registrate
 						</Button>
 					</Grid>
 				</Grid>
