@@ -9,7 +9,11 @@ const keys = require('../config/keys');
 
 const {checkToken} = require('../middleware/middleware');
 
-router.get('/',  (req, res) => {
+router.get('/checkAuth', checkToken, (req, res) => {
+	return res.json({success: true});
+})
+
+router.get('/', checkToken,  (req, res) => {
 	users.find({}, (err, docs) => {
 		return res.json({err, docs});
 	});

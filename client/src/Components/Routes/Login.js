@@ -29,7 +29,12 @@ export default class Login extends Component {
 		e.preventDefault();
 		const {login, password} = this.state;
 		const response = await axios.post("http://localhost:6357/auth/login", {email:login, password});
-		console.log('response = ', response);
+		const {data: {accessToken, success}} = await response;
+		if (success) {
+			localStorage.setItem('camagru-access', accessToken);
+			this.props.authentificate(true);
+			this.props.history.push('/main');
+		}
 	}
 
 	render() {

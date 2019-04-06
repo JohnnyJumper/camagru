@@ -31,12 +31,16 @@ export default function Header({auth}) {
 					<Typography variant="h6" color="inherit"  style={styles.Name}>
 						Camagaru
 					</Typography>
-						<Button color="inherit" component={Link} to="/">		
-								Login
-						</Button>
-						<Button color="inherit" component={Link} to="/registration">		
-								Registration
-						</Button>
+						{auth ? null :
+							<React.Fragment>
+									<Button color="inherit" component={Link} to="/">		
+											Login
+									</Button>
+									<Button color="inherit" component={Link} to="/registration">	
+											Registration
+									</Button>
+							</React.Fragment>
+						}
 				</Toolbar>
 			</AppBar>
 		</div>
