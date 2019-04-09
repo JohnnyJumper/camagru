@@ -30,11 +30,11 @@ export default class CameraComponent extends Component {
 
 
 	save = () => {
-		console.log('ready to save somehow! ');
-		this.setState({save: true});
+		console.log('ready to save somehow! ', this.props);
+		this.setState({save: true})
 	}
 
-	saveFeedBack = () => this.setState({save: false});
+	saveFeedBack = () => this.setState({save: false, isWebCam: true}, () => console.log('saveFeedback played'));
 
 	setRef = webcam => { this.webcam = webcam;  };
 

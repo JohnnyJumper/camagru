@@ -4,7 +4,8 @@ import {AppBar, Toolbar, Typography} from '@material-ui/core';
 const styles = {
 	Footer: {
 		top: 'auto',
-		bottom: 0
+		bottom: 0,
+		position: 'relative'
 	},
 	toolbar: {
 		display: 'flex',
@@ -16,7 +17,7 @@ const styles = {
 
 export default function Footer() {
 	return (
-		<AppBar position="fixed" color="default" style={styles.Footer}>
+		<AppBar color="default" style={styles.Footer}>
 			<Toolbar style={styles.toolbar}>
 				<Typography variant="h6">
 						Copyright 2019 &copy;

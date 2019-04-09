@@ -16,12 +16,11 @@ router.get('/checkAuth', checkToken, (req, res) => {
 router.post('/login', async (req, res) => {
 	const {email, password} = req.body;
 	const user = await users.findOne({email});
-	const id = await user.id;
-
+	const {nickname, id}  = await user;
 	const match = bcrypt.compare(password, user.password);
 	if (match && email === user.email) {
 		// generate new accessToken, save it to db, send it back to user
-		const token = jwt.sign({email}, keys.JWTsecret, { expiresIn: '24h'});
+		const token = jwt.sign({email, nickname, id}, keys.JWTsecret, { expiresIn: '24h'});
 
 		// if such user has token replace it otherwise create a new one: 
 		const userToken = await tokens.findOne({userID: id});

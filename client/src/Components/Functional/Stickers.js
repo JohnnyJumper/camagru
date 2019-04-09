@@ -6,43 +6,49 @@ import {Paper} from '@material-ui/core';
 class Sticker extends Component {
 	constructor(props) {
 		super(props);
-		const home = document.querySelector("#sticker");
-		const elemRef = React.createElement('img', 
-																	{
-																		src: props.image,
-																		key:"sticker",
-																	});
-		const container = React.createElement('div', {"data-name":props.image}, [elemRef]);
+		this.home = document.querySelector('#sticker');
 		this.state  = {
 			image: props.image,
-			home,
-			container
+			render: true
 		}
 	}
 
-	componentWillReceiveProps(nextProps) {
-		if (nextProps.image !== this.state.image ) {
-			const elemRef = React.createElement('img', 
+
+	componentDidUpdate(nextProps) {
+		if (nextProps.image !== this.state.image) {
+			this.elemRef = React.createElement('img', 
 			{
 				src: nextProps.image,
 				key:"sticker",
 			});
-			const container = React.createElement('div', {"data-name":nextProps.image}, [elemRef]);
-			this.setState({image: nextProps.image, container});
+			this.container = React.createElement('div', {"data-name":nextProps.image}, [this.elemRef]);
+			this.setState({image: nextProps.image, render: true});
 		}
 		
-		if (nextProps.cleanSelection)
-			this.cleanout(nextProps.feedback);
+		if (nextProps.cleanSelection && nextProps.cleanSelection === this.state.render) {
+			this.cleanout(nextProps.feedback);	
+		}
+	}
+
+	componentDidMount() {
+		const {image} = this.props;
+		this.elemRef = React.createElement('img', 
+																	{
+																		src: image,
+																		key:"sticker",
+																	});
+
+		this.container = React.createElement('div', {"data-name": image}, [this.elemRef]);
 	}
 
 	cleanout(feedback) {
 		feedback();
-		this.setState({container: undefined});
+		this.props.parentfix();
+		this.setState({image: undefined});
 	}
 
 	render() {
-		const {container, home} = this.state;
-		return ReactDOM.createPortal(container, home);
+		return ReactDOM.createPortal(this.container, this.home);
 	}
 
 }
@@ -78,6 +84,7 @@ export default class Stickers extends Component {
 		this.setState({selectedSticker: sticker});
 	}
 
+	unmountSticker = () => this.setState({selectedSticker: undefined})
 
 	render() {
 		const {stickers, selectedSticker} = this.state;
@@ -86,7 +93,7 @@ export default class Stickers extends Component {
 			<Paper className="stickerWrapper">	
 					{stickers}
 					{selectedSticker ? 
-					<Sticker image={selectedSticker} cleanSelection={cleanSelection} feedback={feedback}/> : null }
+					<Sticker image={selectedSticker} cleanSelection={cleanSelection} feedback={feedback} parentfix={this.unmountSticker}/> : null }
 			</Paper>			
 		)
 	}

@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const fs = require('fs');
 const users = require('../models/users.model');
+const masterPieces = require('../models/masterpieces.model');
 
 router.get('/user', (req, res) => {
 
@@ -18,18 +19,26 @@ router.get('/user', (req, res) => {
 	});
 })
 
+router.get('/gallery', (req, res) => {
+	masterPieces.find({}, (err, docs) => {
+		if (err) return res.json({success: false, err});
+		return res.json({success: true, data: docs});
+	})
+})
+
 
 router.post('/addPicture',  (req, res) => {
 	
-	console.log('req = ', req.body.base64);
-
+	const {nickname, id} = res.locals.decoded;
 	const base64Data = req.body.base64.replace(/^data:image\/png;base64,/, "");
-	fs.writeFile(`uploads/test.png`, base64Data, 'base64', function(err) {
+	const filePath = `uploads/${nickname}-${new Date().getTime()}.png`
+	fs.writeFile(filePath, base64Data, 'base64', function(err) {
 		if(err){
 		   console.log(err);
 		 }
 	});
-	res.json({success: true, req: req.body});
+	const newMasterPiece = new masterPieces({userID: id, imagePath: filePath});
+	newMasterPiece.save().then(piece => res.json({success: true, masterpiece: piece}));
 })
 
 

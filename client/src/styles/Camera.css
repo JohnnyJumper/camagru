@@ -40,8 +40,6 @@
 	position: absolute;
 	top: -100px;
 	left: calc(-7.5%);
-	/* min-height: 200px; */
-	border: 1px solid red;
 	transition: transform 0.1s;
 	transform: translate3d(0, 0, 0);
 	pointer-events: none;

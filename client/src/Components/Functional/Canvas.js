@@ -8,22 +8,25 @@ export default class Canvas extends Component {
 		super(props);
 		this.state = {
 			stickers: [],
-			save: props.save
+			saveToggle: false
 		}
 	}	
 
-	async componentWillReceiveProps(nextProps) {
-		if (nextProps.save !== this.state.save) {
-			if (!nextProps.save) return this.setState({save: nextProps.save});
+	async componentDidUpdate(prevProps) {
+		if (prevProps.save !== this.props.save){
+			const {save, feedback} = this.props;
+			console.log('save = ', save);
 			const DataURL = this.canvas.toDataURL();
 			const result = await axios.post("http://localhost:6357/api/addPicture", {base64: DataURL});
 			console.log('result = ', result);
-			nextProps.feedback();
-			this.setState({save: nextProps.save});
+			this.setState({saveToggle: true}, feedback);
 		}
 	}
 
+	
+
 	componentDidMount() {
+		this.setState({saveToggle: false});
 		this.canvas = this.refs.canvas;
 		this.ctx =  this.canvas.getContext("2d");
 		const background = this.refs.background;
@@ -85,6 +88,7 @@ export default class Canvas extends Component {
 		this.props.cleanSelection();
 		this.setState(prevState => ({stickers: [...prevState.stickers, {...sticker}]}), () => console.log('this.state = ', this.state));
 	}
+
 
 	render() {
 		const {image} = this.props;

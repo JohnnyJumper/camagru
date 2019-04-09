@@ -39,6 +39,15 @@ export default class Header extends React.Component {
 		}
 	}
 
+	async componentDidMount() {
+		const user = await axios.get("http://localhost:6357/api/user");
+		const {data: {success, data}} = user;
+		if (success) {
+			const {nickname} = data;
+			this.setState({nickname});			
+		} else {LogOut(this.props.authentificate)};
+	}
+
 	static getDerivedStateFromProps(props, state) {
 		if (props.auth !== state.auth) {
 			return {auth: props.auth}
@@ -53,7 +62,7 @@ export default class Header extends React.Component {
 			if (success) {
 				const {nickname} = data;
 				this.setState({auth: this.props.auth, nickname});
-			}
+			} else LogOut(this.props.authentificate);
 		}
 	}
 
@@ -74,7 +83,7 @@ export default class Header extends React.Component {
 									<Typography variant="h6" color="inherit">
 										{this.state.nickname}
 									</Typography>
-									<IconButton color="inherit" component={Link} to="/" onClick={() => LogOut(authentificate)}>
+									<IconButton color="inherit" component={Link} to="/" onClick={() => {this.setState({nickname: ''}); return LogOut(authentificate)}}>
 										<ExitToApp />
 									</IconButton>
 								</React.Fragment>

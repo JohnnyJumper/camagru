@@ -4,8 +4,6 @@ import {Route, Switch} from 'react-router-dom';
 import Registration from './Registration';
 import Main from './Main';
 
-const NotFound = props => <h1>404, something went wrong</h1>
-
 const CheckAuth = ({auth, authentificate, PassC,  ...rest}) => {
 	if (auth) 
 		return <Route {...rest} render={props => <PassC {...props}/> }/>;
@@ -21,7 +19,6 @@ export default function Routes({auth, authentificate}) {
 					: <Route exact path="/" render={props => <Login {...props} authentificate={authentificate}/>} />
 				}
 				<CheckAuth   auth={auth} PassC={Main} authentificate={authentificate} exact path="/main"/>
-				<Route component ={NotFound} />
 			</Switch>
 		</React.Fragment>
 	);

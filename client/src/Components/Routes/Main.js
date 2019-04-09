@@ -3,14 +3,20 @@ import axios from 'axios';
 import checkStatus from '../../helpers';
 import CameraComponent from '../Functional/CameraComponent';
 import Stickers from '../Functional/Stickers';
-import Gallery from '../Functional/Gallery';
+import ShowCase from '../Functional/Gallery';
 
 export default class Main extends Component {
 
 	constructor() {
 		super();
 
-		this.state = {x: 0, y: 0, cleanSelection: false};
+		this.state = {
+			x: 0,
+			y: 0,
+			cleanSelection: false,
+			updateGallery: false
+		};
+
 	}
 
 	async componentDidMount() {
@@ -36,20 +42,25 @@ export default class Main extends Component {
 		this.setState({x, y});
 	}
 
-	cleanSelection = () => this.setState({cleanSelection: true});
+	updateGallery = () => this.setState({updateGallery: true});
+	updateGalleryFeedback = () => this.setState({updateGallery: false});
 
-	cleanSelectionFeedback = () => this.setState({cleanSelection: false});
+	cleanSelection = () => this.setState({cleanSelection: true}, () => console.log('clean selection from main ', this.state.cleanSelection));
+
+	cleanSelectionFeedback = () => this.setState({cleanSelection: false}, () => console.log('selection feedback fired'));
 
 	render() {
 		return (
 				<div 
 					onMouseMove={this._onMouseMove.bind(this)} 
-					style={{border:"1px solid orange"}}
 					onTouchMove={this._onTouchMove.bind(this)}
 				>
-					<CameraComponent cleanSelection={this.cleanSelection}/>
+					<CameraComponent 
+						cleanSelection={this.cleanSelection}
+						gallery= {{update: this.updateGallery, feedback: this.updateGalleryFeedback}}
+					/>
 					<Stickers cleanSelection={this.state.cleanSelection} feedback={this.cleanSelectionFeedback}/>
-					<Gallery />
+					<ShowCase update={this.state.updateGallery}/>
 				</div>
 		)
 	}
