@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import {Typography, Grid, TextField, Button} from '@material-ui/core';
+import {Link} from 'react-router-dom';
 import axios from 'axios';
 
 
@@ -75,7 +76,14 @@ export default class Login extends Component {
 				/>
 			</Grid>
 			<Grid item>
-				<Button color="primary" onClick={this.handleLogin}>
+				<Link to="/forgot" style={{textDecoration: "none"}}>
+					<Typography variant="subheading">
+						Forgot Password
+					</Typography>
+				</Link>
+			</Grid>
+			<Grid item>
+				<Button color="primary" onClick={this.handleLogin} size="large">
 					Login
 				</Button>
 			</Grid>

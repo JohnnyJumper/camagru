@@ -1,7 +1,13 @@
 const nodemailer = require('nodemailer');
 const keys = require('../config/keys');
 
-const send = (adressant, token) => {
+const send = (adressant, token, cmd) => {
+
+	const cmds = {
+		newUser: `http://localhost:6357/auth/confirm/${token}`,
+		forgotPassword: `http://localhost:3000/changePass/${token}`
+	}
+
 	const transporter = nodemailer.createTransport({
 		service: 'gmail',
 		auth: keys.email
@@ -10,8 +16,8 @@ const send = (adressant, token) => {
 	const mailOptions = {
 		from: 'johnvolt32@gmail.com',
 		to: adressant,
-		subject: 'confirm camagru registration',
-		text: `http://localhost:6357/auth/confirm/${token}`
+		subject: 'confirm camagru action',
+		text: cmds[cmd]
 	}
 
 	transporter.sendMail(mailOptions, function(error, info){

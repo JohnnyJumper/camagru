@@ -28,9 +28,9 @@ router.get('/confirm/:token', (req, res) => {
 router.post('/login', async (req, res) => {
 	const {email, password} = req.body;
 	const user = await users.findOne({email});
-	if (!user || !user.confirmEmail) return res.send(403).json({success: false, message: 'incorect username or password'});
+	if (!user || !user.confirmEmail) return res.sendStatus(403).json({success: false, message: 'incorect username or password'});
 	const {nickname, id}  = await user;
-	const match = bcrypt.compare(password, user.password);
+	const match = await bcrypt.compare(password, user.password);
 	if (match && email === user.email) {
 		// generate new accessToken, save it to db, send it back to user
 		const token = jwt.sign({email, nickname, id}, keys.JWTsecret, { expiresIn: '24h'});
@@ -39,13 +39,13 @@ router.post('/login', async (req, res) => {
 		const userToken = await tokens.findOne({userID: id});
 		if (userToken) {
 			userToken.accessToken = token;
-			userToken.save().then(() => res.json({success: true, accessToken: token}));			
+			return userToken.save().then(() => res.json({success: true, accessToken: token}));			
 		} else {
 			const newToken = new tokens({userID: id, accessToken: token});
-			return res.json({success: true, accessToken: token});
+			return newToken.save().then(() => res.json({success: true, accessToken: token}));
 		}
 	}
-	 return res.send(403).json({success: false, message: 'Incorect username or password'});
+	 return res.sendStatus(403).json({success: false, message: 'Incorect username or password'});
 });
 
 
@@ -54,12 +54,38 @@ router.post('/reg', (req, res) => {
 
 	if (!email || !password || !nickname) return res.json({err: 'wrong input', data: req.body});
 	bcrypt.hash(password, saltRounds,  (err, hash)  => {
-		if (err) return res.json({success: false, err, data: req.body})
+		if (err) return res.json({success: false, err})
 		const newUser = new users({email, password: hash, nickname, confirmEmail: false});
-		const token = jwt.sign({email}, keys.JWTsecret, { expiresIn: '24h'});
-		sendEmail(email, token);
+		const token = jwt.sign({email}, keys.JWTsecret, { expiresIn: '1h'});
+		sendEmail(email, token, "newUser");
 		newUser.save().then((user) => res.json({success:true}));
 	})
 })
+
+router.post('/forgot-password',  async (req, res) => {
+	const { email, password } = req.body;
+	if (!email) return res.json({success: false, err: 'No email recevied'});
+	const token = jwt.sign({email}, keys.JWTsecret, { expiresIn: '1h'});
+	sendEmail(email, token, "forgotPassword")
+	return res.json({success: true});
+});
+
+router.post('/forgot-password/:token', (req, res) => {
+	const {token} = req.params;
+	const {password} = req.body;
+	if (token.startsWith('Bearer ')) token = token.slice(7, token.length);
+	jwt.verify(token, keys.JWTsecret, async (err, decoded) => {
+		const {email} = decoded;
+		const user = await users.findOne({email});
+		if (!user) return res.json({success: false, err: "no such user exist in database"});
+		bcrypt.hash(password, saltRounds, (err, hash) => {
+			if (err) return res.json({success: false, err});
+			user.password = hash;
+			user.save().then(() => res.json({success: true}));
+		});	
+	});
+});
+
+
 
 module.exports = router;
