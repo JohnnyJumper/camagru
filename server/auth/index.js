@@ -8,14 +8,27 @@ const jwt = require('jsonwebtoken');
 const keys = require('../config/keys');
 
 const {checkToken} = require('../middleware/middleware');
+const sendEmail = require('../email');
 
 router.get('/checkAuth', checkToken, (req, res) => {
 	return res.json({success: true});
 })
 
+router.get('/confirm/:token', (req, res) => {
+	const {token} = req.params;
+	if (token.startsWith('Bearer ')) token = token.slice(7, token.length);
+	jwt.verify(token, keys.JWTsecret, async (err, decoded) => {
+		const {email} = decoded;
+		const user = await users.findOne({email});
+		user.confirmEmail = true;
+		user.save().then(() => res.redirect('http://localhost:3000/main'));
+	});
+})
+
 router.post('/login', async (req, res) => {
 	const {email, password} = req.body;
 	const user = await users.findOne({email});
+	if (!user || !user.confirmEmail) return res.send(403).json({success: false, message: 'incorect username or password'});
 	const {nickname, id}  = await user;
 	const match = bcrypt.compare(password, user.password);
 	if (match && email === user.email) {
@@ -29,9 +42,10 @@ router.post('/login', async (req, res) => {
 			userToken.save().then(() => res.json({success: true, accessToken: token}));			
 		} else {
 			const newToken = new tokens({userID: id, accessToken: token});
-			newToken.save().then(() => res.json({success: true, accessToken: token}));
+			return res.json({success: true, accessToken: token});
 		}
-	} else  return res.send(403).json({success: false, message: 'Incorect username or password'});
+	}
+	 return res.send(403).json({success: false, message: 'Incorect username or password'});
 });
 
 
@@ -41,7 +55,9 @@ router.post('/reg', (req, res) => {
 	if (!email || !password || !nickname) return res.json({err: 'wrong input', data: req.body});
 	bcrypt.hash(password, saltRounds,  (err, hash)  => {
 		if (err) return res.json({success: false, err, data: req.body})
-		const newUser = new users({email, password: hash, nickname});
+		const newUser = new users({email, password: hash, nickname, confirmEmail: false});
+		const token = jwt.sign({email}, keys.JWTsecret, { expiresIn: '24h'});
+		sendEmail(email, token);
 		newUser.save().then((user) => res.json({success:true}));
 	})
 })
