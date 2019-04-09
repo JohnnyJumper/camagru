@@ -29,7 +29,8 @@ class ShowCase extends Component {
 		const {data:{data, success}} = response;
 		const {images} = this.state;
 		if (success) {
-			data.forEach(img => {
+			data.forEach(im => {
+				const img = im._doc;
 				if (!images[img.imagePath])  {
 				let imgObj = new Image();
 				imgObj.src = img.imagePath;
@@ -39,7 +40,8 @@ class ShowCase extends Component {
 						height:imgObj.height,
 						src: img.imagePath,
 						date: img.createdAt,
-						id: img._id
+						id: img._id,
+						"data-owned": im.owned
 					}
 					this.setState(prevState => ({
 							images: Object.assign({}, prevState.images, {[img.imagePath]:data})					

@@ -3,14 +3,15 @@ const router = express.Router();
 const fs = require('fs');
 const users = require('../models/users.model');
 const masterPieces = require('../models/masterpieces.model');
+const disputs = require('../models/disputs.model');
 const jwt = require('jsonwebtoken');
 const keys = require('../config/keys');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const sendEmail = require('../email');
 
-router.get('/user', (req, res) => {
 
+router.get('/user', (req, res) => {
 	const {decoded: {email}} = res.locals;	
 	let nickname = "unknown";
 	users.findOne({email}, (err, doc) => {
@@ -25,10 +26,34 @@ router.get('/user', (req, res) => {
 })
 
 router.get('/gallery', (req, res) => {
+	const {id} = res.locals.decoded;
 	masterPieces.find({}, (err, docs) => {
+		if (err) return res.json({success: false, err});
+
+		const userGallery = docs.map((cur) => {
+			if(cur.userID === id)
+				return ({...cur, owned: "true"})
+			return ({...cur, owned: "false"})
+		});
+		return res.json({success: true, data: userGallery})
+	})
+})
+
+router.get('/comments/:id', (req, res) => {
+	const {id} = req.params;
+
+	disputs.find({masterPieceID: id}, (err, docs) => {
 		if (err) return res.json({success: false, err});
 		return res.json({success: true, data: docs});
 	})
+} )
+
+router.post('/add-comment/:id', (req, res)=> {
+	const {id} = req.params;
+	const {text} = req.body;
+	const {nickname, id:userID} = res.locals.decoded;
+	const newDisput = new disputs({text, author:{nickname, id: userID}, likes: 0, masterPieceID:id});
+	newDisput.save().then(disput => res.json({success: true, data:disput}));
 })
 
 router.get('/picture/:id', (req, res) => {
@@ -37,10 +62,29 @@ router.get('/picture/:id', (req, res) => {
 	if (!id) return res.json({success: false, err: "No such picture in database"});
 	masterPieces.findById(id, (err, doc) => {
 		if (err) return res.json({success: false, err});
-		return res.json({success: true, data: doc});
+
+		disputs.find({masterPieceID: id}, (err, docs) => {
+			return res.json({success: true, data: {image: doc, comments: docs}});
+		})
 	})
 })
 
+router.get('/picture/:id/can-delete', (req, res) => {
+	const {id} = res.locals.decoded;
+	const {id: pictureID} = req.params;
+	masterPieces.findById(pictureID, (err, doc) => {
+		if (err) return res.json({success: false, err});
+		return res.json({success:true});
+	})
+})
+
+
+router.get('/like/:id', async (req, res) => {
+	const {id} = req.params;
+	const disput = await disputs.findById(id);
+	disput.likes += 1;
+	disput.save().then(() => res.json({success: true}));
+})
 
 router.post('/addPicture',  (req, res) => {
 	
@@ -82,6 +126,7 @@ router.post('/editProfile', async (req, res) => {
 	user.save().then(() => res.json({success: true}));
 
 })
+
 
 
 module.exports = router;
