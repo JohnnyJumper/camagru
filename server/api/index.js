@@ -31,6 +31,16 @@ router.get('/gallery', (req, res) => {
 	})
 })
 
+router.get('/picture/:id', (req, res) => {
+	const {id} = req.params;
+
+	if (!id) return res.json({success: false, err: "No such picture in database"});
+	masterPieces.findById(id, (err, doc) => {
+		if (err) return res.json({success: false, err});
+		return res.json({success: true, data: doc});
+	})
+})
+
 
 router.post('/addPicture',  (req, res) => {
 	

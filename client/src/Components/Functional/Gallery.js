@@ -2,10 +2,11 @@ import React, { Component } from 'react'
 import { Paper } from '@material-ui/core';
 import Gallery from "react-photo-gallery";
 import axios from 'axios';
+import { withRouter } from 'react-router-dom';
 
 import "../../styles/Gallery.css";
 
-export default class ShowCase extends Component {
+class ShowCase extends Component {
 	
 	constructor(){
 		super();
@@ -37,7 +38,8 @@ export default class ShowCase extends Component {
 						width:imgObj.width,
 						height:imgObj.height,
 						src: img.imagePath,
-						date: img.createdAt
+						date: img.createdAt,
+						id: img._id
 					}
 					this.setState(prevState => ({
 							images: Object.assign({}, prevState.images, {[img.imagePath]:data})					
@@ -48,6 +50,11 @@ export default class ShowCase extends Component {
 		}
 	}
 
+	handlePictureClick = (e, obj) => {
+		console.log('clicked on ', obj);
+		console.log('this.props ', this.props);
+		this.props.history.push(`/picture/${obj.photo.id}`)
+	}
 
 	render() {
 		const {images} = this.state;
@@ -61,10 +68,12 @@ export default class ShowCase extends Component {
 			<Paper className="galleryWrapper">
 				<div>
 					{pictures.length !== 0 ? 
-						<Gallery photos={pictures} />
+						<Gallery photos={pictures} onClick={this.handlePictureClick}/>
 						: null }
 				</div>
 			</Paper>
 		)
 	}
 }
+
+export default withRouter(ShowCase);

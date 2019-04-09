@@ -31,7 +31,7 @@ app.use(bodyParser.json({limit: '50mb'}));
 app.use('/auth', auth);
 app.use('/api', checkToken, api);
 
-app.use('/uploads', express.static(path.join(__dirname, "/uploads")));
+app.use('*/uploads', express.static(path.join(__dirname, "/uploads")));
 
 
 app.listen(PORT, () => console.log(`listening on ${PORT}`));
