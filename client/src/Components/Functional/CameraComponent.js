@@ -13,7 +13,8 @@ export default class CameraComponent extends Component {
 
 		this.state = {
 			isWebCam: true,
-			image: ''
+			image: '',
+			save: false
 		}
 
 	}
@@ -30,7 +31,10 @@ export default class CameraComponent extends Component {
 
 	save = () => {
 		console.log('ready to save somehow! ');
+		this.setState({save: true});
 	}
+
+	saveFeedBack = () => this.setState({save: false});
 
 	setRef = webcam => { this.webcam = webcam;  };
 
@@ -59,7 +63,12 @@ export default class CameraComponent extends Component {
 			</React.Fragment>
 			:
 			<React.Fragment>
-					<Canvas image={image} cleanSelection={this.props.cleanSelection}/> 
+					<Canvas 
+						image={image}
+						cleanSelection={this.props.cleanSelection}
+						save={this.state.save}
+						feedback = {this.saveFeedBack}
+					/> 
 					<Fab size="small" color="inherit" aria-label="Add" className="saveButton" onClick={this.save}>
 						<Check fontSize={"small"}/>
 					</Fab>

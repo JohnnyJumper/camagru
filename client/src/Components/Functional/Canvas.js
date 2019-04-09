@@ -1,14 +1,27 @@
 import React, { Component } from 'react'
+import axios from 'axios';
 
 export default class Canvas extends Component {
 
 
-	constructor() {
-		super();
+	constructor(props) {
+		super(props);
 		this.state = {
-			stickers: []
+			stickers: [],
+			save: props.save
 		}
 	}	
+
+	async componentWillReceiveProps(nextProps) {
+		if (nextProps.save !== this.state.save) {
+			if (!nextProps.save) return this.setState({save: nextProps.save});
+			const DataURL = this.canvas.toDataURL();
+			const result = await axios.post("http://localhost:6357/api/addPicture", {base64: DataURL});
+			console.log('result = ', result);
+			nextProps.feedback();
+			this.setState({save: nextProps.save});
+		}
+	}
 
 	componentDidMount() {
 		this.canvas = this.refs.canvas;
@@ -45,7 +58,7 @@ export default class Canvas extends Component {
 		let y = e.clientY - rect.top;
 
 		const width = rect.right - rect.left;
-		if (this.canvas.width != width) {
+		if (this.canvas.width !== width) {
 			const height = rect.bottom  - rect.top;
 			x = x*(this.canvas.width / width);
 			y = y * (this.canvas.height / height);
