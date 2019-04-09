@@ -72,12 +72,12 @@ export default class Header extends React.Component {
 			<div style={styles.Container}>
 				<AppBar position="static">
 					<Toolbar>
-						<IconButton  color="inherit" aria-label="Menu" style={styles.Menu}>
+						<IconButton  color="inherit" aria-label="Menu" style={styles.Menu} component={Link} to="/profile">
 							<MenuIcon />
 						</IconButton>
-						<Typography variant="h6" color="inherit"  style={styles.Name}>
-							Camagaru
-						</Typography>
+							<Typography variant="h6" color="inherit"  style={styles.Name}>
+								<Link to="/" style={{textDecoration:"none"}}>Camagaru</Link>
+							</Typography>
 							{auth ?
 								<React.Fragment>
 									<Typography variant="h6" color="inherit">

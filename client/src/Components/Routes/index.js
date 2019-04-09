@@ -5,6 +5,7 @@ import Registration from './Registration';
 import ForgotPassword from './ForgotPassword';
 import Main from './Main';
 import ChangePassword from './ChangePassword';
+import ProfileSettings from './ProfileSettings';
 
 const CheckAuth = ({auth, authentificate, PassC,  ...rest}) => {
 	if (auth) 
@@ -23,6 +24,7 @@ export default function Routes({auth, authentificate}) {
 				<CheckAuth   auth={auth} PassC={Main} authentificate={authentificate} exact path="/main"/>
 				<Route exact path="/forgot" component={ForgotPassword} />
 				<Route exact path="/changePass/:token" component={ChangePassword} />
+				<CheckAuth auth={auth} PassC={ProfileSettings} authentificate={authentificate} exact path="/profile"/>
 			</Switch>
 		</React.Fragment>
 	);

@@ -1,9 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const multer = require('multer');
 const fs = require('fs');
 const users = require('../models/users.model');
 const masterPieces = require('../models/masterpieces.model');
+const jwt = require('jsonwebtoken');
+const keys = require('../config/keys');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+const sendEmail = require('../email');
 
 router.get('/user', (req, res) => {
 
@@ -12,6 +16,7 @@ router.get('/user', (req, res) => {
 	users.findOne({email}, (err, doc) => {
 		let success = false;
 		if (!err) {
+			
 			success = true;
 			nickname = doc.nickname;
 		}
@@ -39,6 +44,33 @@ router.post('/addPicture',  (req, res) => {
 	});
 	const newMasterPiece = new masterPieces({userID: id, imagePath: filePath});
 	newMasterPiece.save().then(piece => res.json({success: true, masterpiece: piece}));
+})
+
+router.post('/editProfile', async (req, res) => {
+	const {email: userEmail} = res.locals.decoded;
+	const {email, nickname, password} = req.body;
+
+	const user = await users.findOne({email: userEmail});
+	if (nickname) {
+		user.nickname = nickname
+	}
+
+	if (email) {
+		user.email = email
+		user.confirmEmail = false;
+		const token = jwt.sign({email}, keys.JWTsecret, { expiresIn: '1h'});
+		sendEmail(email, token, "newUser");
+	}
+
+	if (password) {
+		bcrypt.hash(password, saltRounds,  (err, hash)  => {
+			if (err) return res.json({success: false, err})
+			user.password = hash;
+			user.save();
+		})
+	}
+	user.save().then(() => res.json({success: true}));
+
 })
 
 
