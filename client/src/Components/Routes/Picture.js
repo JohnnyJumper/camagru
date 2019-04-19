@@ -25,7 +25,6 @@ export default class Picture extends Component {
 			image: {},
 			comment: '',
 			comments: [],
-			owned: false
 		}
 	}
 
@@ -78,15 +77,23 @@ export default class Picture extends Component {
 		return dateB - dateA;
 	}
 
+	async delete(e) {
+		const response = await axios.delete('http://localhost:6357/api/deletePicture', {data: {pictureID: this.state.image._id}});
+		const {success, err} = await response.data;
+		if (success) {
+			return this.props.history.push('/');
+		}
+		else 
+			this.setState({errMessage: err});
+	}
+
 	render() {
-		const {comments, owned} = this.state;
+		const {comments} = this.state;
 		return (
 			<React.Fragment>
 				<Paper className="picture">
 					<img src={this.state.image.imagePath} alt="img" />
-					{owned ? 
-					<Clear className="delete" fontSize="large" onClick={this.delete}/>
-					: null }
+					<Clear className="delete" fontSize="large" onClick={this.delete.bind(this)}/>
 				</Paper>
 					<Paper className="picture">
 								<TextField

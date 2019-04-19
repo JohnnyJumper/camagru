@@ -9,7 +9,7 @@ const keys = require('../config/keys');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const sendEmail = require('../email');
-
+const {deletePermisionCheck} = require('../middleware/middleware');
 
 router.get('/user', (req, res) => {
 	const {decoded: {email}} = res.locals;	
@@ -86,8 +86,7 @@ router.get('/like/:id', async (req, res) => {
 	disput.save().then(() => res.json({success: true}));
 })
 
-router.post('/addPicture',  (req, res) => {
-	
+router.post('/addPicture',  (req, res) => {	
 	const {nickname, id} = res.locals.decoded;
 	const base64Data = req.body.base64.replace(/^data:image\/png;base64,/, "");
 	const filePath = `uploads/${nickname}-${new Date().getTime()}.png`
@@ -99,6 +98,15 @@ router.post('/addPicture',  (req, res) => {
 	const newMasterPiece = new masterPieces({userID: id, imagePath: filePath});
 	newMasterPiece.save().then(piece => res.json({success: true, masterpiece: piece}));
 })
+
+router.delete('/deletePicture',deletePermisionCheck, async (req, res) => {
+	const {pictureID} = req.body;
+	masterPieces.findByIdAndDelete(pictureID, (err, doc) => {
+		if (err) return res.json({success: false, err});
+		return res.json({success: true, data: doc});
+	});	
+})
+
 
 router.post('/editProfile', async (req, res) => {
 	const {email: userEmail} = res.locals.decoded;
