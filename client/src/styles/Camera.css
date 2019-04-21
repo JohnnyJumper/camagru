@@ -61,3 +61,12 @@
 	min-height: 20vh;
 	text-align: center;
 }
+
+
+@media only screen and (min-width: 1400px) {
+	.screenWrapper {
+		width: 60%;
+		margin: 1.3em auto 3em;
+	
+	}
+}
