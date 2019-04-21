@@ -55,7 +55,7 @@ router.post('/reg', (req, res) => {
 	if (!email || !password || !nickname) return res.json({err: 'wrong input', data: req.body});
 	bcrypt.hash(password, saltRounds,  (err, hash)  => {
 		if (err) return res.json({success: false, err})
-		const newUser = new users({email, password: hash, nickname, confirmEmail: false});
+		const newUser = new users({email, password: hash, nickname, confirmEmail: false, sendNotification: true});
 		const token = jwt.sign({email}, keys.JWTsecret, { expiresIn: '1h'});
 		sendEmail(email, token, "newUser");
 		newUser.save().then((user) => res.json({success:true}));

@@ -21,9 +21,7 @@ export default class Canvas extends Component {
 			console.log('result = ', result);
 			this.setState({saveToggle: true}, feedback);
 		}
-	}
-
-	
+	}	
 
 	componentDidMount() {
 		this.setState({saveToggle: false});

@@ -5,7 +5,8 @@ const userSchema = new Schema({
 	email: String,
 	password: String,
 	nickname: String,
-	confirmEmail: Boolean
+	confirmEmail: Boolean,
+	sendNotification: Boolean
 });
 
 

@@ -5,7 +5,8 @@ const send = (adressant, token, cmd) => {
 
 	const cmds = {
 		newUser: `http://localhost:6357/auth/confirm/${token}`,
-		forgotPassword: `http://localhost:3000/changePass/${token}`
+		forgotPassword: `http://localhost:3000/changePass/${token}`,
+		newComment: `You have new comment on your picture\n find it here: ${token}`
 	}
 
 	const transporter = nodemailer.createTransport({

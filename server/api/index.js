@@ -48,12 +48,19 @@ router.get('/comments/:id', (req, res) => {
 	})
 } )
 
-router.post('/add-comment/:id', (req, res)=> {
+router.post('/add-comment/:id', async (req, res)=> {
 	const {id} = req.params;
 	const {text} = req.body;
 	const {nickname, id:userID} = res.locals.decoded;
 	const newDisput = new disputs({text, author:{nickname, id: userID}, likes: 0, masterPieceID:id});
 	newDisput.save().then(disput => res.json({success: true, data:disput}));
+	const masterpiece = await masterPieces.findById(id);
+	const authorID = masterpiece.userID;
+	const user = await users.findById(authorID);
+	console.log('this is the author of picture ', user);
+	if (user.sendNotification) {
+		sendEmail(user.email, `http://localhost:3000/picture/${id}`, "newComment");
+	}
 })
 
 router.get('/picture/:id', (req, res) => {
@@ -110,7 +117,7 @@ router.delete('/deletePicture',deletePermisionCheck, async (req, res) => {
 
 router.post('/editProfile', async (req, res) => {
 	const {email: userEmail} = res.locals.decoded;
-	const {email, nickname, password} = req.body;
+	const {email, nickname, password, sendNotification} = req.body;
 
 	const user = await users.findOne({email: userEmail});
 	if (nickname) {
@@ -131,6 +138,9 @@ router.post('/editProfile', async (req, res) => {
 			user.save();
 		})
 	}
+	if (sendNotification !== user.sendNotification)
+		user.sendNotification = sendNotification;
+	
 	user.save().then(() => res.json({success: true}));
 
 })
